@@ -22,6 +22,8 @@ class Clienti{
     
     int getNrCl() const {return nr_cl;} 
     std::string getTip() const {return mobila;}
+    
+    Clienti(const Clienti & cli): mobila{cli.mobila}, nr_cl{cli.nr_cl} {}
 
     Clienti & operator=(const Clienti& cli){
         mobila=cli.mobila;
@@ -57,6 +59,7 @@ friend std::ostream & operator<<(std::ostream & out,const Clienti& cli){
 class Componente{
     unsigned int nr_piese;
     std::string comp_princip;
+
     
     public:
     Componente(unsigned int nr_piese=0, const std::string& comp_pr="") : 
@@ -89,6 +92,12 @@ class Componente{
         std::getline(in,comp.comp_princip);
         return in;
     }
+
+    Componente & operator=(const Componente & comp){
+        nr_piese=comp.nr_piese;
+        comp_princip=comp.comp_princip;
+        return *this;
+    }
     ~Componente(){}
 
 };
@@ -97,6 +106,26 @@ class Mobila{
     std::string tip;
     Componente comp;
     int stoc, pret; 
+
+    void stoc_redus(){
+        char op;
+        bool loop=true;
+        while(loop){
+            std::cout<<"\n Stocul este redus - doriti sa mariti pretul cu 5%? \n Tastati\n  'd' -> aplicarea scumpirii\n  'n' -> nemodificarea pretului\n";
+            //std::cin.ignore();
+            //std::getline(std::cin,op);
+            std::cin>>op;
+            if(op!='d' && op!='n')
+                std::cout<<"\n Input invalid!\n";
+            else{
+                if(op=='d'){
+                    setPret(pret*1.05);
+                }
+                loop=false;
+            }
+        }
+
+    }
     
     public:
     Mobila(const std::string& tip_="", Componente &&comp_={0,""},int stoc_=0, int pret_=0):
@@ -135,8 +164,7 @@ class Mobila{
 
     std::string getTip() const{return tip;}
 
-    void scrieFisier(std::ostream &out, int total_mob) const{
-        out<<total_mob<<'\n';
+    void scrieFisier(std::ostream &out) const{
         out<<tip<<'\n';
         out<<comp.getNr_piese()<<'\n';
         out<<comp.getComp()<<'\n';
@@ -149,14 +177,30 @@ class Mobila{
     void setTip(const std::string &tip_){
         tip=tip_;
     }
-    void setStoc(int stoc_){
+  void setStoc(int stoc_){
         stoc=stoc_;
+        if(stoc_<5)
+            stoc_redus();
     }
     void setPret(int pret_){
         pret=pret_;
     }
 
+    Mobila(const Mobila& mob) :tip{mob.tip}, comp{mob.comp}, stoc{mob.stoc}, pret{mob.pret} {}
+
+    Mobila & operator=(const Mobila & mob){
+
+        tip=mob.tip;
+        stoc=mob.stoc;
+        pret=mob.pret;
+        comp=mob.comp;
+        return *this;
+    }
+    ~Mobila(){}
     
+    int venit(const Clienti& cli){
+        return pret*cli.getNrCl();
+    }
 };
 
 int main(){
@@ -178,22 +222,38 @@ int main(){
         f>>cli[i];
     }
 
-    char optiune,ok;
     std::string input;
+    int x,optiune;
+    char ok;
+    bool modificari=false;
     while(true){
-        std::cout<<"\nAlegeti o actiune: \n";
-        std::cout<<" 1--> Afisare detalii despre mobila disponibila\n 2--> Afisati componentele principale ale mobilierului \n 3--> Afiseaza numarul de clienti inregistrati \n 4--> Adaugati mobilier\n 5--> Actualizati stocul mobilierului \n 6--> Actualizati pretul mobilierului \n 7--> Actualizati numarul de clienti al mobilierului \n 8--> Stergeti din inventar mobilierul \n 9--> Calculeaza venitul din vanzari al mobilierului\n10--> Iesire\n ";
+std::cout <<
+"--------------------------------------------------\n"
+"|                     MENIU                       |\n"
+"--------------------------------------------------\n"
+"| 1  - Afisare detalii despre mobila             |\n"
+"| 2  - Afisati componentele principale           |\n"
+"| 3  - Afiseaza numarul de clienti               |\n"
+"| 4  - Adaugati mobilier                         |\n"
+"| 5  - Actualizati stocul mobilierului           |\n"
+"| 6  - Actualizati pretul mobilierului           |\n"
+"| 7  - Actualizati nr. clienti al mobilierului   |\n"
+"| 8  - Stergeti mobilier din inventar            |\n"
+"| 9  - Calculeaza venitul din vanzari            |\n"
+"| 10 - Iesire                                    |\n"
+"--------------------------------------------------\n"
+"Alegeti optiunea: ";
         std::cin>>optiune;
         switch(optiune){
-            case '1':
+            case 1:
             std::cout<<" Tastati\n 1--> Afisati informatii despre TOT mobilierul \n 2--> Tastati numele piesei de mobilier \n";
             std::cin>>optiune;
-            if(optiune=='1')
+            std::cin.ignore();
+            if(optiune==1)
                 for(i=0;i<total_mob;++i)
                     std::cout<<mobila[i]<<cli[i];
-            else if(optiune=='2'){
+            else if(optiune==2){
                 ok=1;
-                std::cin.ignore();
                 std::getline(std::cin, input);
                 // ar trebui sa transform in lowercase
                 for(i=0;i<total_mob;++i){
@@ -210,7 +270,7 @@ int main(){
             std::cout<<"\n Optiune invalida!";
         break;
         
-        case '2':
+        case 2:
             std::cout<<" Tastati numele piesei de mobilier \n";
             std::cin.ignore();
             std::getline(std::cin, input);
@@ -225,16 +285,16 @@ int main(){
                 std::cout<<"\nInput invalid - "<<input<<" nu exista in inventar\n";       
         break;
         
-        case '3':
+        case 3:
             std::cout<<" Tastati\n 1--> Afiseaza numarul total de clienti \n 2--> Afiseaza numarul de clienti inregistrati pentru o piesa de mobilier \n";
             std::cin>>optiune;
-            if(optiune=='1'){
+            if(optiune==1){
                 unsigned int cnt=0;
                 for(i=0;i<total_mob;++i)
                     cnt+=cli[i].getNrCl();
                 std::cout<<"\nNumar total de clienti : "<<cnt<<'\n';
             }
-            else if(optiune=='2'){
+            else if(optiune==2){
                 ok=1;
                 std::cin.ignore();
                 std::getline(std::cin, input);
@@ -253,32 +313,163 @@ int main(){
             std::cout<<"\n Optiune invalida"; 
         break;        
         
-        case '4':
+        case 4:
         if(total_mob>=100){
             std::cout<<"\nNu mai este loc in depozit pentru un tip nou de mobila!\n";
         }
         else{
-            int x;
+            modificari=true;
             std::cout<<"\n Tipul mobilierului : "; 
             std::cin.ignore();
             std::getline(std::cin, input);
             mobila[total_mob].setTip(input);
+            cli[total_mob].setMobila(input);
             std::cout<<" Stocul: "; std::cin>>x;
             mobila[total_mob].setStoc(x);
             std::cout<<" Pretul: "; std::cin>>x;
             mobila[total_mob].setPret(x);
-            mobila[total_mob].setComp();
-           
-            total_mob++;
-        }
+            std::cin.ignore();
 
-        default:
+            mobila[total_mob].setComp();
+
+            std::cout<<" Numarul de clienti: "; std::cin>>x;
+            cli[total_mob].setNrClienti(x);
+            total_mob++;
+            std::cin.ignore();
+        }
+        break;
+
+        case 5:
+            ok=1;
+            std::cout<<"\n Tipul mobilierului: ";
+           std::cin.ignore();
+            std::getline(std::cin, input);
+                for(i=0;i<total_mob;++i){
+                    if(input==mobila[i].getTip()){
+                        std::cout<<"\n Stocul actualizat: ";
+                        std::cin>>x;
+                        std::cin.ignore();
+                        mobila[i].setStoc(x);
+
+                        ok=0;
+                        modificari=true;
+                        break;
+                    }      
+                }
+            if(ok==1)
+                std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
+            
+        break;
+        
+        case 6:
+            ok=1;
+            std::cout<<"\n Tipul mobilierului: ";
+            std::cin.ignore();
+            std::getline(std::cin, input);
+                for(i=0;i<total_mob;++i){
+                    if(input==mobila[i].getTip()){
+                        std::cout<<" Pretul actualizat: ";
+                        std::cin>>x;
+                        std::cin.ignore();
+                        mobila[i].setPret(x);
+                        ok=0;
+                        modificari=true;
+                        break;
+                    }      
+                }
+            if(ok==1)
+                std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
+            break;
+
+            case 7:
+            ok=1;
+            std::cout<<"\n Tipul mobilierului: ";
+            std::cin.ignore();
+            std::getline(std::cin, input);
+                for(i=0;i<total_mob;++i){
+                    if(input==cli[i].getTip()){
+                        std::cout<<" Numar clienti: ";
+                        std::cin>>x;
+                        std::cin.ignore();
+                        cli[i].setNrClienti(x);
+                        ok=0;
+                        modificari=true;
+                        break;
+                    }      
+                }
+            if(ok==1)
+                std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
+        break;
+
+        case 8:
+            ok=1;
+            std::cout<<"\n Tipul mobilierului: ";
+            std::cin.ignore();
+            std::getline(std::cin, input);
+                for(i=0;i<total_mob;++i){
+                    if(input==mobila[i].getTip()){
+                        for(int j=i;j<total_mob-1;--j)
+                            mobila[j]=mobila[j+1];
+                        ok=0;
+                        total_mob--;
+                        std::cout<<"\nInventarul a fost actualizat!";
+                        modificari=true;
+
+                    }      
+                }
+            if(ok==1)
+                std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
+        break;
+        
+        case 9:
+        std::cout<<" Tastati\n 1--> Afisati venitul total \n 2--> Afisare venitul total din vanzarea unei singure piese de mobilier \n";
+            std::cin>>optiune;
+            std::cin.ignore();
+            x=0;
+            if(optiune==1){
+                for(i=0;i<total_mob;i++)
+                    x+=mobila[i].venit(cli[i]);
+                std::cout<<"\n Venit total din vanzari: "<<x<<'\n';
+            }
+            else if(optiune==2){
+                ok=1;
+                std::cout<<"Mobila : ";
+                std::cin.ignore();
+                std::getline(std::cin, input);
+                for(i=0;i<total_mob;++i){
+                    if(input==mobila[i].getTip()){
+                        x=mobila[i].venit(cli[i]);
+                        std::cout<<"Venitul total din vanzarile de "<<input<<" este de "<<x<<" ron"<<'\n';
+                        ok=0;
+                        break;
+                    }      
+                }
+            if(ok==1)
+                std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
+            }
+            else
+            std::cout<<"\n Optiune invalida!";       
+        break;
+        case 10:{
+        f.close();
+        if(modificari==true){
+            std::ofstream g("date.in");
+            g<<total_mob<<'\n';
+            for(i=0;i<total_mob;++i){
+                mobila[i].scrieFisier(g);
+                cli[i].scrieFisier(g);
+            }
+            g.close();
+        }
+        return 0;
         break;
     }
-
-    f.close();
-    
-}}
+        default:
+        std::cout<<"\nTastati un numar intre 1 si 10";
+        break;
+    }
+    }
+}
     return 0;
 
 }
