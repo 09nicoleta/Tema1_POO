@@ -256,16 +256,17 @@ int main(){
     char ok;
     bool modificari=false;
     while(true){
-    std::cout <<
-    "--------------------------------------------------\n"
-    "|                MENIU                            |\n"
-    "--------------------------------------------------\n"
-    "| 1  - Afisare detalii despre mobila             |\n"
-    "| 2  - Afisati componentele principale           |\n"
-    "| 3  - Afiseaza numarul de clienti               |\n"
-    "| 4  - Adaugati mobilier                         |\n"
-    "| 5  - Actualizati stocul mobilierului           |\n"
-    "| 6  - Actualizati pretul mobilierului           |\n"
+
+        std::cout <<
+    "--------------------------------------------------          __________.\n"
+    "|                    MENIU                       |         /_/-----/_/|   __\n"
+    "--------------------------------------------------         ( ( ' ' ( (| /'--'\\\n"
+    "| 1  - Afisare detalii despre mobila             |         (_( ' ' (_(|/_    _\\\n"
+    "| 2  - Afisati componentele principale           |         / /=====/ /|  '||'\n"
+    "| 3  - Afiseaza numarul de clienti               |        /_//____/_/ |   ||\n"
+    "| 4  - Adaugati mobilier                         |       (o|:.....|o) |   ||\n"
+    "| 5  - Actualizati stocul mobilierului           |       |_|:_____|_|/'  _||_\n"
+    "| 6  - Actualizati pretul mobilierului           |        '         '   /____\\\n"
     "| 7  - Actualizati nr. clienti al mobilierului   |\n"
     "| 8  - Stergeti mobilier din inventar            |\n"
     "| 9  - Calculeaza venitul din vanzari            |\n"
@@ -273,7 +274,8 @@ int main(){
     "| 11 - Iesire                                    |\n"
     "--------------------------------------------------\n"
     "Alegeti optiunea: ";
-    
+  
+
     std::getline(std::cin, input);
     try {
         optiune = std::stoi(input);
