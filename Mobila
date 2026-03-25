@@ -1,0 +1,28 @@
+    
+    Programul manipuleaza datele despre inventarul si clientii unui magazin de mobila.
+
+    Datele de intrare din fisier sunt memorate in urmatoarea ordine: 
+    Numarul total de mobila din inventar (total_mob)
+    <clasa Mobila>
+    Numele mobilierului (tip)
+    Numarul de piese care trebuie asamblate (comp.nr_piese)
+    Piesele principale (comp.comp_princip)
+    Stocul actual (stoc)
+    Pretul (pret)
+    <clasa Clienti>
+    Tipul de mobilier (mobila)
+    Numarul de clienti (nr_cl)
+
+    Asupra datelor, se pot face urmatoarele operatii: 
+        - afisarea informatiilor memorate in clase
+        - afisarea datelor membre ale claselor
+        - afiseaza numarul total de adaugari in inventar
+        - adaugarea in inventar a unui tip nou de mobilier
+        - actualizarea stocului, pretului, nr. de clienti
+        - stergerea din inventar
+        - calcularea venitului total din vanzari
+
+    In cazul in care stocul este scazut, programul va genera o sugestie de crestere a pretului cu 5%
+    (apelarea functiei private stoc_redus)
+
+    Optiunea "11 - Iesire" salveaza actualizarile facute prin suprascrierea fisierului de intrare
