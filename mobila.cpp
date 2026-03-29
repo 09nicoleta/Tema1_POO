@@ -1,5 +1,6 @@
 /*
-    Programul manipuleaza datele despre inventarul si clientii unui magazin de mobila.
+    INVENTARUL UNUI MAGAZIN DE MOBILA
+    Programul manipuleaza datele despre inventarul si vanzentii unui magazin de mobila.
 
     Datele de intrare din fisier sunt memorate in urmatoarea ordine: 
     Numarul total de mobila din inventar (total_mob)
@@ -9,80 +10,94 @@
     Piesele principale (comp.comp_princip)
     Stocul actual (stoc)
     Pretul (pret)
-    <clasa Clienti>
+    <clasa Vanzari>
     Tipul de mobilier (mobila)
-    Numarul de clienti (nr_cl)
+    Numarul de vanzenti (nr_vnz)
 
     Asupra datelor, se pot face urmatoarele operatii: 
         - afisarea informatiilor memorate in clase
         - afisarea datelor membre ale claselor
         - afiseaza numarul total de adaugari in inventar
         - adaugarea in inventar a unui tip nou de mobilier
-        - actualizarea stocului, pretului, nr. de clienti
+        - actualizarea stocului, pretului, nr. de vanzenti
         - stergerea din inventar
         - calcularea venitului total din vanzari
 
     In cazul in care stocul este scazut, programul va genera o sugestie de crestere a pretului cu 5%
     (apelarea functiei private stoc_redus)
 
-    Optiunea "11 - Iesire" salveaza actualizarile facute prin suprascrierea fisierului de intrare
 */
 
 #include<iostream>
 #include<string>
-#include<fstream>
 
-class Clienti{
+class Vanzari{
     
     std::string mobila;
-    int nr_cl;
+    int nr_vnz;
     
     public:
-    Clienti(const std::string& mob="", int nr_cl=0):
-    mobila(mob), nr_cl{nr_cl} {};
 
-    inline void setMobila(const std::string& mobila){
+    //constructor de initializare
+    Vanzari(const std::string& mob="", int nr_vnz=0):
+    mobila(mob), nr_vnz{nr_vnz} {};
+
+    void setMobila(const std::string& mobila){
         this->mobila=mobila;
     }
 
-    inline void setNrClienti(int nr_cl){
-        this->nr_cl=nr_cl;
+    void setNrVanzari(int nr_vnz){
+        this->nr_vnz=nr_vnz;
     }
     
-    int getNrCl() const {return nr_cl;} 
+    int getNrCl() const {return nr_vnz;} 
     std::string getTip() const {return mobila;}
     
-    Clienti(const Clienti & cli): mobila{cli.mobila}, nr_cl{cli.nr_cl} {}
+    //constructor de copiere
+    Vanzari(const Vanzari & vanz): mobila{vanz.mobila}, nr_vnz{vanz.nr_vnz} {}
 
-    Clienti & operator=(const Clienti& cli){
-        mobila=cli.mobila;
-        nr_cl=cli.nr_cl;
+    //supraincarcarea operatorului "="
+    Vanzari & operator=(const Vanzari& vanz){
+        mobila=vanz.mobila;
+        nr_vnz=vanz.nr_vnz;
         return *this;
     }
-    ~Clienti(){}
-
-    friend std::istream& operator >>(std::istream & in, Clienti &client){
+    ~Vanzari(){}
+    
+    //supraincarcarea operatorului ">>"
+    friend std::istream& operator >>(std::istream & in, Vanzari &vanzent){
         std::string tip;
         int nrc;
         std::getline(in,tip);
-        client.mobila=tip;
+        vanzent.mobila=tip;
         in>>nrc;
         in.ignore();
-        client.nr_cl=nrc;
+        vanzent.nr_vnz=nrc;
         return in;
     }
 
-friend std::ostream & operator<<(std::ostream & out,const Clienti& cli){
+//supraincarcarea operatorului "<<"
+friend std::ostream & operator<<(std::ostream & out,const Vanzari& vanz){
     
-    std::cout<<"< Clienti >"<<'\n';
-    std::cout<<cli.mobila<<" ---> "<<cli.nr_cl<<'\n';
+    std::cout<<"< Vanzari >"<<'\n';
+    std::cout<<vanz.mobila<<" ---> "<<vanz.nr_vnz<<'\n';
     return out;
 }
 
-    void scrieFisier(std::ostream &out) const{
-        out<<mobila<<'\n';
-        out<<nr_cl<<'\n';
+//supraincarcarea operatorului "+"
+
+    // Obiect de tip Vanzari + nr_vanzari
+     Vanzari & operator+(int vanz){
+        nr_vnz+=vanz;
+        return *this;
     }
+
+      //  nr_vanzari + Obiect de tip Vanzari 
+    friend Vanzari & operator+(int vanz, Vanzari& v){
+        v.nr_vnz+=vanz;
+        return v;
+    }
+
 };
 
 class Componente{
@@ -91,26 +106,30 @@ class Componente{
 
     
     public:
+    //constructorul de initializare
     Componente(unsigned int nr_piese=0, const std::string& comp_pr="") : 
     nr_piese{nr_piese}, comp_princip(comp_pr) {};
 
+    //constructorul de copiere
     Componente(const Componente &comp): nr_piese{comp.nr_piese}, comp_princip{comp.comp_princip} {}
     
-    inline void setNr_piese(unsigned int nr){
+    void setNr_piese(unsigned int nr){
         nr_piese=nr;
     }
 
-    inline void setComp(const std::string& comp){
+    void setComp(const std::string& comp){
         comp_princip=comp;
     }
     
     int getNr_piese() const{ return nr_piese; };
     std::string getComp() const {return comp_princip; };
     
+    //supraincarcarea operatorului <<
    friend std::ostream& operator<<(std::ostream &out, const Componente & comp){
         out<<"\nComponentele principale sunt: "<<comp.comp_princip<<"\n\n";
         return out;
     }
+    //supraincarcarea operatorului >>
     friend std::istream& operator>>(std::istream& in, Componente& comp){
         std::cout<<" Numarul de componente: "; in>>comp.nr_piese;
         std::cout<<" Componentele principale: "; 
@@ -118,7 +137,7 @@ class Componente{
         std::getline(in,comp.comp_princip);
         return in;
     }
-
+    //supraincarcarea operatorului =
     Componente & operator=(const Componente & comp){
         nr_piese=comp.nr_piese;
         comp_princip=comp.comp_princip;
@@ -134,17 +153,17 @@ class Mobila{
     int stoc, pret; 
     static int nr_actualizari;
 
-    void stoc_redus(){
-        char op;
+    inline void stoc_redus(){
+        int op;
         bool loop=true;
         while(loop){
-            std::cout<<"\n Stocul este redus - doriti sa mariti pretul cu 5%? \n Tastati\n  'd' -> aplicarea scumpirii\n  'n' -> nemodificarea pretului\n";
+            std::cout<<"\n Stocul este redus - doriti sa mariti pretul cu 5%? \n Tastati\n  1 -> aplicarea scumpirii\n  2 -> nemodificarea pretului\n";
             std::cin>>op;
-            std::cin.ignore();
-            if(op!='d' && op!='n')
+          //  std::cin.ignore();
+            if(op!=1 && op!=2)
                 std::cout<<"\n Input invalid!\n";
             else{
-                if(op=='d'){
+                if(op==1){
                     setPret(pret*1.05);
                 }
                 loop=false;
@@ -153,9 +172,10 @@ class Mobila{
     }
     
     public:
+    //constructorul de initializare
     Mobila(const std::string& tip_="", Componente &&comp_={0,""}, int stoc_=0, int pret_=0):
     tip{tip_}, comp{comp_}, stoc{stoc_}, pret{pret_} {}
-
+    //supraincarcarea operatorului >>
     friend std::istream& operator>>(std::istream &in, Mobila& mob ){
         std::string linie;
         int x;
@@ -175,7 +195,7 @@ class Mobila{
         mob.pret=x;       
     return in;
     }
-    
+    //supraincarcarea operatorului <<
    friend std::ostream& operator<<(std::ostream & out, const Mobila& mob){ 
         
         out<<'\n'<<mob.tip<<'\n';
@@ -187,19 +207,11 @@ class Mobila{
     return out;
     }
 
-    inline std::string getTip() const{return tip;}
-
-    void scrieFisier(std::ostream &out) const{
-        out<<tip<<'\n';
-        out<<comp.getNr_piese()<<'\n';
-        out<<comp.getComp()<<'\n';
-        out<<stoc<<'\n';
-        out<<pret<<'\n';
-    }
+   std::string getTip() const{return tip;}
 
     void afisComp() const{ std::cout<<comp; }
     void setComp(){std::cin>>comp;}
-    inline void setTip(const std::string &tip_){
+    void setTip(const std::string &tip_){
         tip=tip_;
     }
     void setStoc(int stoc_){
@@ -207,14 +219,16 @@ class Mobila{
         if(stoc_<5)
             stoc_redus();
     }
-    inline void setPret(int pret_){
+    void setPret(int pret_){
         pret=pret_;
     }
-    inline int getNrAct () const {return nr_actualizari;}
-    inline void setNrAct() {nr_actualizari++;}
+    int getNrAct () const {return nr_actualizari;}
+    void setNrAct() {nr_actualizari++;}
 
+    //constructorul de copiere
     Mobila(const Mobila& mob) :tip{mob.tip}, comp{mob.comp}, stoc{mob.stoc}, pret{mob.pret} {}
 
+    //supraincarcarea operatorului =
     Mobila & operator=(const Mobila & mob){
 
         tip=mob.tip;
@@ -225,8 +239,8 @@ class Mobila{
     }
     ~Mobila(){}
     
-    int venit(const Clienti& cli){
-        return pret*cli.getNrCl();
+    inline int venit(const Vanzari& vanz){
+        return pret*vanz.getNrCl();
     }
 };
 
@@ -234,28 +248,16 @@ int Mobila::nr_actualizari=0;
 
 int main(){
 
-    int total_mob,i;
-    
-    Mobila mobila[100];
-    Clienti cli[100];
-    
-    std::ifstream f("date.in");
-    if(!f){
-        std::cout<<"Eroare - nu se poate deschide fisierul";
-    }
-    else{
-    f>>total_mob;
-    f.ignore();
-    for(i=0;i<total_mob;++i){
-        f>>mobila[i];
-        f>>cli[i];
-    }
-
+    int total_mob=3,i;
+    Mobila mobila[100]{ {"canapea",{3,"cadrul, elemente de cuplare, chingi elastice"},10,800}, 
+    {"dulap",{3,"usi,cutii de depozitare,balamale"}, 20,1500},{"pat",{3,"cadru, sertare, saltea"},12,1700}};
+    Vanzari vanz[100]{{"canapea", 11},{"dulap",20},{"pat",21}};
     std::string input;
     int x,optiune;
     char ok;
-    bool modificari=false;
-    while(true){
+    bool loop=true;
+
+    while(loop){
 
         std::cout <<
     "--------------------------------------------------          __________.\n"
@@ -263,11 +265,11 @@ int main(){
     "--------------------------------------------------         ( ( ' ' ( (| /'--'\\\n"
     "| 1  - Afisare detalii despre mobila             |         (_( ' ' (_(|/_    _\\\n"
     "| 2  - Afisati componentele principale           |         / /=====/ /|  '||'\n"
-    "| 3  - Afiseaza numarul de clienti               |        /_//____/_/ |   ||\n"
+    "| 3  - Afiseaza numarul de vanzari               |        /_//____/_/ |   ||\n"
     "| 4  - Adaugati mobilier                         |       (o|:.....|o) |   ||\n"
     "| 5  - Actualizati stocul mobilierului           |       |_|:_____|_|/'  _||_\n"
     "| 6  - Actualizati pretul mobilierului           |        '         '   /____\\\n"
-    "| 7  - Actualizati nr. clienti al mobilierului   |\n"
+    "| 7  - Actualizati nr. vanzari al mobilierului   |\n"
     "| 8  - Stergeti mobilier din inventar            |\n"
     "| 9  - Calculeaza venitul din vanzari            |\n"
     "| 10 - Afisati numarul de obiecte recent adaugate|\n"
@@ -277,6 +279,7 @@ int main(){
   
 
     std::getline(std::cin, input);
+    //tratarea cazului in care se citeste de la tastatura un caracter in loc de un numar
     try {
         optiune = std::stoi(input);
     } catch (...) {
@@ -285,13 +288,15 @@ int main(){
     }
 
     switch(optiune){
+
+        //Afisare detalii despre mobila 
         case 1:
         std::cout<<" Tastati\n 1--> Afisati informatii despre TOT mobilierul \n 2--> Tastati numele piesei de mobilier \n";
         std::cin>>optiune;
         std::cin.ignore();
         if(optiune==1)
             for(i=0;i<total_mob;++i)
-                std::cout<<mobila[i]<<cli[i];
+                std::cout<<mobila[i]<<vanz[i];
         else if(optiune==2){
             ok=1;
            // std::cin.ignore();
@@ -311,6 +316,7 @@ int main(){
     break;
     
     case 2:
+    //Afisati componentele principale
         std::cout<<" Tastati numele piesei de mobilier \n";
         std::getline(std::cin, input);
         ok=0;
@@ -324,24 +330,25 @@ int main(){
             std::cout<<"\nInput invalid - "<<input<<" nu exista in inventar\n";       
     break;
     
+    //Afiseaza numarul de vanzari 
     case 3:
-        std::cout<<" Tastati\n 1--> Afiseaza numarul total de clienti \n 2--> Afiseaza numarul de clienti inregistrati pentru o piesa de mobilier \n";
+        std::cout<<" Tastati\n 1--> Afiseaza numarul total de vanzari \n 2--> Afiseaza numarul de vanzari inregistrati pentru o piesa de mobilier \n";
         std::cin>>optiune;
         std::cin.ignore();
 
         if(optiune==1){
             unsigned int cnt=0;
             for(i=0;i<total_mob;++i)
-                cnt+=cli[i].getNrCl();
-            std::cout<<"Numar total de clienti : "<<cnt<<'\n';
+                cnt+=vanz[i].getNrCl();
+            std::cout<<"Numar total de vanzari : "<<cnt<<'\n';
         }
         else if(optiune==2){
             ok=1;
 
             std::getline(std::cin, input);
             for(i=0;i<total_mob;++i){
-                if(input==cli[i].getTip()){
-                    std::cout<<cli[i];
+                if(input==vanz[i].getTip()){
+                    std::cout<<vanz[i];
                     ok=0;
                     break;
                 }      
@@ -353,17 +360,17 @@ int main(){
         std::cout<<"\n Optiune invalida\n"; 
     break;        
     
+    //Adaugati mobilier
     case 4:
     if(total_mob>=100){
         std::cout<<"\nNu mai este loc in depozit pentru un tip nou de mobila!\n";
     }
     else{
-        modificari=true;
         std::cout<<"\n Tipul mobilierului : "; 
         //std::cin.ignore();
         std::getline(std::cin, input);
         mobila[total_mob].setTip(input);
-        cli[total_mob].setMobila(input);
+        vanz[total_mob].setMobila(input);
         std::cout<<" Pretul: "; std::cin>>x;
         mobila[total_mob].setPret(x);
         std::cout<<" Stocul: "; 
@@ -372,14 +379,15 @@ int main(){
         mobila[total_mob].setStoc(x);
         mobila[total_mob].setComp();
 
-        std::cout<<" Numarul de clienti: "; std::cin>>x;
-        cli[total_mob].setNrClienti(x);
+        std::cout<<" Numarul de vanzari: "; std::cin>>x;
+        vanz[total_mob].setNrVanzari(x);
         total_mob++;
         mobila[0].setNrAct();
         //std::cin.ignore();
     }
     break;
 
+    //Actualizati stocul mobilierului    
     case 5:
         ok=1;
         std::cout<<"\n Tipul mobilierului: ";
@@ -393,7 +401,6 @@ int main(){
                     mobila[i].setStoc(x);
 
                     ok=0;
-                    modificari=true;
                     break;
                 }      
             }
@@ -401,7 +408,8 @@ int main(){
             std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
         
     break;
-    
+
+   // Actualizati pretul mobilierului   
     case 6:
         ok=1;
         std::cout<<"\n Tipul mobilierului: ";
@@ -414,7 +422,6 @@ int main(){
                     std::cin.ignore();
                     mobila[i].setPret(x);
                     ok=0;
-                    modificari=true;
                     break;
                 }      
             }
@@ -422,26 +429,40 @@ int main(){
             std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
         break;
 
+        //Actualizati nr. vanzari al mobilierului
         case 7:
         ok=1;
         std::cout<<"\n Tipul mobilierului: ";
         //std::cin.ignore();
         std::getline(std::cin, input);
             for(i=0;i<total_mob;++i){
-                if(input==cli[i].getTip()){
-                    std::cout<<" Numar clienti: ";
+                if(input==vanz[i].getTip()){
+                    
+                    std::cout<<"\n Tastati\n 1 --> Setati numarul de vanzari\n 2 --> Adaugati un numar de vanzari la cel actual\n ";
                     std::cin>>x;
-                    std::cin.ignore();
-                    cli[i].setNrClienti(x);
+                    if(x==1){
+                        std::cout<<" Numar vanzari: ";
+                        std::cin>>x;
+                        std::cin.ignore();
+                        vanz[i].setNrVanzari(x); 
+                        ok=0;
+                        break;
+
+                    }
+                    else if(x==2){
+                    std::cout<<"\n Introduceti numarul de vanzari care vor fi inregistrate\n";
+                    std::cin>>x;
+                    vanz[i]=vanz[i]+x; // se foloseste supraincarcarea operatorului "+"
                     ok=0;
-                    modificari=true;
                     break;
+                    }
                 }      
             }
         if(ok==1)
             std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
     break;
 
+    //Stergeti mobilier din inventar
     case 8:
         ok=1;
         std::cout<<"\n Tipul mobilierului: ";
@@ -454,22 +475,21 @@ int main(){
                     ok=0;
                     total_mob--;
                     std::cout<<"\nInventarul a fost actualizat!\n";
-                    modificari=true;
-
                 }      
             }
         if(ok==1)
             std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
     break;
     
+    //Calculeaza venitul din vanzari   
     case 9:
-    std::cout<<" Tastati\n 1--> Afisati venitul total \n 2--> Afisare venitul total din vanzarea unei singure piese de mobilier \n";
+    std::cout<<" Tastati\n 1--> Afisati venitul total \n 2--> Afisare venitul total din vanzari unei singure piese de mobilier \n";
         std::cin>>optiune;
         std::cin.ignore();
         x=0;
         if(optiune==1){
             for(i=0;i<total_mob;i++)
-                x+=mobila[i].venit(cli[i]);
+                x+=mobila[i].venit(vanz[i]);
             std::cout<<"\n Venit total din vanzari: "<<x<<'\n';
         }
         else if(optiune==2){
@@ -479,7 +499,7 @@ int main(){
             std::getline(std::cin, input);
             for(i=0;i<total_mob;++i){
                 if(input==mobila[i].getTip()){
-                    x=mobila[i].venit(cli[i]);
+                    x=mobila[i].venit(vanz[i]);
                     std::cout<<"Venitul total din vanzarile de "<<input<<" este de "<<x<<" ron"<<'\n';
                     ok=0;
                     break;
@@ -491,24 +511,16 @@ int main(){
         else
         std::cout<<"\n Optiune invalida!";       
     break;
-    
+
+    //Afisati numarul de obiecte recent adaugate
     case 10:
     std::cout<<"Numarul pieselor de mobilier recent adaugate: \n";   
     std::cout<<mobila[0].getNrAct()<<'\n';
     break; 
 
+    //Iesire
     case 11:{
-    f.close();
-    if(modificari==true){
-        std::ofstream g("date.in");
-        g<<total_mob<<'\n';
-        for(i=0;i<total_mob;++i){
-            mobila[i].scrieFisier(g);
-            cli[i].scrieFisier(g);
-        }
-        g.close();
-    }
-    return 0;
+    loop=false;
     break;
 }
 
@@ -517,7 +529,8 @@ int main(){
     break;
 }
 }
-}
+
 return 0;
 
 }
+
