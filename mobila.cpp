@@ -1,6 +1,6 @@
 /*
     INVENTARUL UNUI MAGAZIN DE MOBILA
-    Programul manipuleaza datele despre inventarul si vanzentii unui magazin de mobila.
+    Programul manipuleaza datele din inventarul unui magazin de mobila.
 
     Datele de intrare din fisier sunt memorate in urmatoarea ordine: 
     Numarul total de mobila din inventar (total_mob)
@@ -12,14 +12,14 @@
     Pretul (pret)
     <clasa Vanzari>
     Tipul de mobilier (mobila)
-    Numarul de vanzenti (nr_vnz)
+    Numarul de vanzi (nr_vnz)
 
     Asupra datelor, se pot face urmatoarele operatii: 
         - afisarea informatiilor memorate in clase
         - afisarea datelor membre ale claselor
-        - afiseaza numarul total de adaugari in inventar
+        - afisearea numarul total de adaugari in inventar
         - adaugarea in inventar a unui tip nou de mobilier
-        - actualizarea stocului, pretului, nr. de vanzenti
+        - actualizarea stocului, pretului, nr. de vanzari
         - stergerea din inventar
         - calcularea venitului total din vanzari
 
@@ -29,21 +29,25 @@
 */
 
 #include<iostream>
-#include<string>
+#include<cstring>
 
 class Vanzari{
     
-    std::string mobila;
+    char* mobila;
     int nr_vnz;
     
     public:
 
     //constructor de initializare
-    Vanzari(const std::string& mob="", int nr_vnz=0):
-    mobila(mob), nr_vnz{nr_vnz} {};
+    Vanzari(const char* m="", int nr_vnz=0): nr_vnz{nr_vnz}{
+        mobila = new char[strlen(m)+1];
+        strcpy(mobila,m);
+    }
 
-    void setMobila(const std::string& mobila){
-        this->mobila=mobila;
+    void setMobila(const char* m){
+        delete [] mobila;
+        mobila= new char[strlen(m)+1];
+        strcpy(mobila,m);
     }
 
     void setNrVanzari(int nr_vnz){
@@ -51,36 +55,46 @@ class Vanzari{
     }
     
     int getNrCl() const {return nr_vnz;} 
-    std::string getTip() const {return mobila;}
+    char* getTip() const {return mobila;}
     
     //constructor de copiere
-    Vanzari(const Vanzari & vanz): mobila{vanz.mobila}, nr_vnz{vanz.nr_vnz} {}
+    Vanzari(const Vanzari & vanz) : nr_vnz{vanz.nr_vnz}{
+        mobila=new char[strlen(vanz.mobila)+1];
+        strcpy(mobila,vanz.mobila);
+    } 
 
     //supraincarcarea operatorului "="
     Vanzari & operator=(const Vanzari& vanz){
-        mobila=vanz.mobila;
+        if(this!=&vanz){
+        delete [] mobila;
+        mobila=new char[strlen(vanz.mobila)+1];
+        strcpy(mobila,vanz.mobila);
         nr_vnz=vanz.nr_vnz;
-        return *this;
     }
-    ~Vanzari(){}
+    return *this;
+}
+
+    //Destructor
+    ~Vanzari(){delete [] mobila;}
     
     //supraincarcarea operatorului ">>"
-    friend std::istream& operator >>(std::istream & in, Vanzari &vanzent){
-        std::string tip;
+    friend std::istream& operator >>(std::istream & in, Vanzari &vanz){
         int nrc;
-        std::getline(in,tip);
-        vanzent.mobila=tip;
+        delete [] vanz.mobila; // linie de cod necesara pentru a trata cazul in care variabila avea deja memorie alocata
+        vanz.mobila=new char[100]; 
+        in.ignore();
+        in.getline(vanz.mobila,100); 
         in>>nrc;
         in.ignore();
-        vanzent.nr_vnz=nrc;
+        vanz.nr_vnz=nrc;
         return in;
     }
 
 //supraincarcarea operatorului "<<"
 friend std::ostream & operator<<(std::ostream & out,const Vanzari& vanz){
     
-    std::cout<<"< Vanzari >"<<'\n';
-    std::cout<<vanz.mobila<<" ---> "<<vanz.nr_vnz<<'\n';
+    out<<"< Vanzari >"<<'\n';
+    out<<vanz.mobila<<" ---> "<<vanz.nr_vnz<<'\n';
     return out;
 }
 
@@ -102,27 +116,31 @@ friend std::ostream & operator<<(std::ostream & out,const Vanzari& vanz){
 
 class Componente{
     unsigned int nr_piese;
-    std::string comp_princip;
-
+    char* comp_princip;
     
     public:
     //constructorul de initializare
-    Componente(unsigned int nr_piese=0, const std::string& comp_pr="") : 
-    nr_piese{nr_piese}, comp_princip(comp_pr) {};
+    Componente(unsigned int nr_piese=0, const char* comp_pr="") : nr_piese{nr_piese} {
+        comp_princip=new char[strlen(comp_pr)+1]; 
+        strcpy(comp_princip, comp_pr);
+    };
 
     //constructorul de copiere
-    Componente(const Componente &comp): nr_piese{comp.nr_piese}, comp_princip{comp.comp_princip} {}
+    Componente(const Componente &comp): nr_piese{comp.nr_piese} {
+        comp_princip=new char[strlen(comp.comp_princip)+1];
+        strcpy(comp_princip, comp.comp_princip);
+    }
     
     void setNr_piese(unsigned int nr){
         nr_piese=nr;
     }
 
-    void setComp(const std::string& comp){
-        comp_princip=comp;
+    void setComp(const char* comp){
+        strcpy(comp_princip,comp);
     }
     
     int getNr_piese() const{ return nr_piese; };
-    std::string getComp() const {return comp_princip; };
+    char* getComp() const {return comp_princip; };
     
     //supraincarcarea operatorului <<
    friend std::ostream& operator<<(std::ostream &out, const Componente & comp){
@@ -131,24 +149,25 @@ class Componente{
     }
     //supraincarcarea operatorului >>
     friend std::istream& operator>>(std::istream& in, Componente& comp){
+
         std::cout<<" Numarul de componente: "; in>>comp.nr_piese;
         std::cout<<" Componentele principale: "; 
         in.ignore();
-        std::getline(in,comp.comp_princip);
+        in.getline(comp.comp_princip,100);
         return in;
     }
     //supraincarcarea operatorului =
     Componente & operator=(const Componente & comp){
         nr_piese=comp.nr_piese;
-        comp_princip=comp.comp_princip;
+        strcpy(comp_princip,comp.comp_princip);
         return *this;
     }
-    ~Componente(){}
+    ~Componente(){delete [] comp_princip;}
 
 };
 
 class Mobila{
-    std::string tip;
+    char tip[50];
     Componente comp;
     int stoc, pret; 
     static int nr_actualizari;
@@ -173,17 +192,18 @@ class Mobila{
     
     public:
     //constructorul de initializare
-    Mobila(const std::string& tip_="", Componente &&comp_={0,""}, int stoc_=0, int pret_=0):
-    tip{tip_}, comp{comp_}, stoc{stoc_}, pret{pret_} {}
+    Mobila(const char tip_[]="", const Componente& comp_={0,""}, int stoc_=0, int pret_=0):
+    comp{comp_}, stoc{stoc_}, pret{pret_} {strcpy(tip,tip_);}
+    
     //supraincarcarea operatorului >>
     friend std::istream& operator>>(std::istream &in, Mobila& mob ){
-        std::string linie;
+        char linie[100];
         int x;
-        std::getline(in,linie);
-        mob.tip=linie;
+        in.getline(linie,100);
+        strcpy(mob.tip,linie);
         in>>x;
         in.ignore();
-        std::getline(in,linie);
+        in.getline(linie,100);
         mob.comp.setComp(linie);
         mob.comp.setNr_piese(x);
 
@@ -207,12 +227,12 @@ class Mobila{
     return out;
     }
 
-   std::string getTip() const{return tip;}
+    const char* getTip() const{return tip;}
 
     void afisComp() const{ std::cout<<comp; }
     void setComp(){std::cin>>comp;}
-    void setTip(const std::string &tip_){
-        tip=tip_;
+    void setTip(const char* tip_){
+        strcpy(tip,tip_);
     }
     void setStoc(int stoc_){
         stoc=stoc_;
@@ -226,12 +246,12 @@ class Mobila{
     void setNrAct() {nr_actualizari++;}
 
     //constructorul de copiere
-    Mobila(const Mobila& mob) :tip{mob.tip}, comp{mob.comp}, stoc{mob.stoc}, pret{mob.pret} {}
+    Mobila(const Mobila& mob) : comp{mob.comp}, stoc{mob.stoc}, pret{mob.pret} {strcpy(tip,mob.tip);}
 
     //supraincarcarea operatorului =
     Mobila & operator=(const Mobila & mob){
 
-        tip=mob.tip;
+        strcpy(tip,mob.tip);
         stoc=mob.stoc;
         pret=mob.pret;
         comp=mob.comp;
@@ -248,13 +268,12 @@ int Mobila::nr_actualizari=0;
 
 int main(){
 
-    int total_mob=3,i;
     Mobila mobila[100]{ {"canapea",{3,"cadrul, elemente de cuplare, chingi elastice"},10,800}, 
-    {"dulap",{3,"usi,cutii de depozitare,balamale"}, 20,1500},{"pat",{3,"cadru, sertare, saltea"},12,1700}};
+    {"dulap",{3,"usi, cutii de depozitare, balamale"}, 20,1500},{"pat",{3,"cadru, sertare, saltea"},12,1700}};
     Vanzari vanz[100]{{"canapea", 11},{"dulap",20},{"pat",21}};
-    std::string input;
-    int x,optiune;
-    char ok;
+
+    int total_mob=3,i,x,optiune;
+    char input[100],ok;
     bool loop=true;
 
     while(loop){
@@ -278,7 +297,7 @@ int main(){
     "Alegeti optiunea: ";
   
 
-    std::getline(std::cin, input);
+    std::cin.getline(input,100);
     //tratarea cazului in care se citeste de la tastatura un caracter in loc de un numar
     try {
         optiune = std::stoi(input);
@@ -300,7 +319,7 @@ int main(){
         else if(optiune==2){
             ok=1;
            // std::cin.ignore();
-            std::getline(std::cin, input);
+            std::cin.getline(input,100);
             for(i=0;i<total_mob;++i){
                 if(input==mobila[i].getTip()){
                     std::cout<<mobila[i];
@@ -318,7 +337,7 @@ int main(){
     case 2:
     //Afisati componentele principale
         std::cout<<" Tastati numele piesei de mobilier \n";
-        std::getline(std::cin, input);
+        std::cin.getline(input,100);
         ok=0;
         for(i=0;i<total_mob;++i){
             if(input==mobila[i].getTip()){
@@ -345,7 +364,7 @@ int main(){
         else if(optiune==2){
             ok=1;
 
-            std::getline(std::cin, input);
+            std::cin.getline(input,100);
             for(i=0;i<total_mob;++i){
                 if(input==vanz[i].getTip()){
                     std::cout<<vanz[i];
@@ -368,7 +387,7 @@ int main(){
     else{
         std::cout<<"\n Tipul mobilierului : "; 
         //std::cin.ignore();
-        std::getline(std::cin, input);
+        std::cin.getline(input,100);
         mobila[total_mob].setTip(input);
         vanz[total_mob].setMobila(input);
         std::cout<<" Pretul: "; std::cin>>x;
@@ -392,7 +411,8 @@ int main(){
         ok=1;
         std::cout<<"\n Tipul mobilierului: ";
         //std::cin.ignore();
-        std::getline(std::cin, input);
+        std::cin.getline(input,100);
+
             for(i=0;i<total_mob;++i){
                 if(input==mobila[i].getTip()){
                     std::cout<<"\n Stocul actualizat: ";
@@ -414,7 +434,7 @@ int main(){
         ok=1;
         std::cout<<"\n Tipul mobilierului: ";
         //std::cin.ignore();
-        std::getline(std::cin, input);
+        std::cin.getline(input,100);
             for(i=0;i<total_mob;++i){
                 if(input==mobila[i].getTip()){
                     std::cout<<" Pretul actualizat: ";
@@ -434,9 +454,9 @@ int main(){
         ok=1;
         std::cout<<"\n Tipul mobilierului: ";
         //std::cin.ignore();
-        std::getline(std::cin, input);
+        std::cin.getline(input,100);
             for(i=0;i<total_mob;++i){
-                if(input==vanz[i].getTip()){
+                if(strcmp(input,vanz[i].getTip())==0){
                     
                     std::cout<<"\n Tastati\n 1 --> Setati numarul de vanzari\n 2 --> Adaugati un numar de vanzari la cel actual\n ";
                     std::cin>>x;
@@ -467,7 +487,7 @@ int main(){
         ok=1;
         std::cout<<"\n Tipul mobilierului: ";
         //std::cin.ignore();
-        std::getline(std::cin, input);
+        std::cin.getline(input,100);
             for(i=0;i<total_mob;++i){
                 if(input==mobila[i].getTip()){
                     for(int j=i;j<total_mob-1;--j)
@@ -496,7 +516,7 @@ int main(){
             ok=1;
             std::cout<<"Mobila : ";
             //std::cin.ignore();
-            std::getline(std::cin, input);
+            std::cin.getline(input,'\n');
             for(i=0;i<total_mob;++i){
                 if(input==mobila[i].getTip()){
                     x=mobila[i].venit(vanz[i]);
@@ -533,4 +553,5 @@ int main(){
 return 0;
 
 }
+
 
