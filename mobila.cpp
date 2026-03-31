@@ -321,7 +321,7 @@ int main(){
            // std::cin.ignore();
             std::cin.getline(input,100);
             for(i=0;i<total_mob;++i){
-                if(input==mobila[i].getTip()){
+                if(strcmp(input,mobila[i].getTip())==0){
                     std::cout<<mobila[i];
                     ok=0;
                     break;
@@ -340,7 +340,7 @@ int main(){
         std::cin.getline(input,100);
         ok=0;
         for(i=0;i<total_mob;++i){
-            if(input==mobila[i].getTip()){
+            if(strcmp(input,mobila[i].getTip())==0){
                 mobila[i].afisComp();
                 ok=1;
         }
@@ -350,34 +350,13 @@ int main(){
     break;
     
     //Afiseaza numarul de vanzari 
-    case 3:
-        std::cout<<" Tastati\n 1--> Afiseaza numarul total de vanzari \n 2--> Afiseaza numarul de vanzari inregistrati pentru o piesa de mobilier \n";
-        std::cin>>optiune;
-        std::cin.ignore();
-
-        if(optiune==1){
-            unsigned int cnt=0;
-            for(i=0;i<total_mob;++i)
-                cnt+=vanz[i].getNrCl();
-            std::cout<<"Numar total de vanzari : "<<cnt<<'\n';
-        }
-        else if(optiune==2){
-            ok=1;
-
-            std::cin.getline(input,100);
-            for(i=0;i<total_mob;++i){
-                if(input==vanz[i].getTip()){
-                    std::cout<<vanz[i];
-                    ok=0;
-                    break;
-                }      
-            }
-        if(ok==1)
-            std::cout<<"Input invalid - "<<input<<" nu exista in inventar\n";
-        }
-        else
-        std::cout<<"\n Optiune invalida\n"; 
-    break;        
+    case 3:{
+        unsigned int cnt=0;
+        for(i=0; i<total_mob; ++i)
+            cnt+=vanz[i].getNrCl();
+        std::cout<<"Numar total de vanzari : "<<cnt<<'\n';
+        break;
+    }        
     
     //Adaugati mobilier
     case 4:
@@ -414,7 +393,7 @@ int main(){
         std::cin.getline(input,100);
 
             for(i=0;i<total_mob;++i){
-                if(input==mobila[i].getTip()){
+                if(strcmp(input,mobila[i].getTip())==0){
                     std::cout<<"\n Stocul actualizat: ";
                     std::cin>>x;
                     std::cin.ignore();
@@ -436,7 +415,7 @@ int main(){
         //std::cin.ignore();
         std::cin.getline(input,100);
             for(i=0;i<total_mob;++i){
-                if(input==mobila[i].getTip()){
+                if(strcmp(input,mobila[i].getTip())==0){
                     std::cout<<" Pretul actualizat: ";
                     std::cin>>x;
                     std::cin.ignore();
@@ -489,7 +468,7 @@ int main(){
         //std::cin.ignore();
         std::cin.getline(input,100);
             for(i=0;i<total_mob;++i){
-                if(input==mobila[i].getTip()){
+                if(strcmp(input,mobila[i].getTip())==0){
                     for(int j=i;j<total_mob-1;--j)
                         mobila[j]=mobila[j+1];
                     ok=0;
@@ -518,7 +497,7 @@ int main(){
             //std::cin.ignore();
             std::cin.getline(input,'\n');
             for(i=0;i<total_mob;++i){
-                if(input==mobila[i].getTip()){
+                if(strcmp(input,mobila[i].getTip())==0){
                     x=mobila[i].venit(vanz[i]);
                     std::cout<<"Venitul total din vanzarile de "<<input<<" este de "<<x<<" ron"<<'\n';
                     ok=0;
